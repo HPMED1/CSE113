@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electronics and Circuits Quiz</title>
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .quiz-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #0056b3;
+        }
+        .quiz-title {
+            color: #0056b3;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .quiz-subtitle {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .lecture-nav {
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 25px 0;
+        }
+        .lecture-btn {
+            padding: 10px 15px; background-color: #0056b3; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; min-width: 120px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .lecture-btn:hover {
+            background-color: #003d82; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .lecture-btn.active {
+            background-color: #28a745; transform: scale(1.05);
+        }
+        .progress-container {
+            display: flex; justify-content: space-between; align-items: center; margin: 20px 0; padding: 15px; background-color: #e9f7fe; border-radius: 8px; border-left: 4px solid #0056b3;
+        }
+        .progress-bar {
+            flex-grow: 1; height: 12px; background-color: #e0e0e0; border-radius: 10px; margin: 0 15px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, #28a745, #0056b3); border-radius: 10px; transition: width 0.5s ease;
+        }
+        .chapter-title {
+            color: #0056b3; border-bottom: 2px solid #0056b3; padding-bottom: 12px; margin: 25px 0 15px; font-size: 1.6rem;
+        }
+        .question-type-title {
+            color: #007bff; margin: 20px 0 15px; font-size: 1.3rem; padding-left: 10px; border-left: 4px solid #007bff;
+        }
+        .question-block {
+            margin-bottom: 25px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9; transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative;
+        }
+        .question-block:hover {
+            transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .question-text {
+            font-weight: bold; margin-bottom: 15px; font-size: 1.1rem; color: #333;
+        }
+        .options {
+            display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px;
+        }
+        .options label {
+            display: flex; align-items: center; padding: 12px 15px; background: white; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; border: 2px solid #e0e0e0;
+        }
+        .options label:hover {
+            background-color: #f0f8ff; border-color: #b3d7ff;
+        }
+        .options input[type="radio"] {
+            margin-right: 12px; width: 18px; height: 18px; cursor: pointer;
+        }
+        .show-answer-btn {
+            padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; display: block; margin-top: 10px;
+        }
+        .show-answer-btn:hover {
+            background-color: #218838; transform: translateY(-2px);
+        }
+        .answer {
+            display: none; margin-top: 15px; padding: 15px; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 8px; color: #0056b3; font-weight: bold; animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; } to { opacity: 1; }
+        }
+        .status-indicator {
+            display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-left: 8px; background-color: #6c757d;
+        }
+        .status-indicator.completed {
+            background-color: #28a745;
+        }
+        .disclaimer {
+            background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 15px; margin-bottom: 20px; border-radius: 5px;
+        }
+        @media (max-width: 768px) {
+            .quiz-container { padding: 20px; }
+            .lecture-nav { flex-direction: column; align-items: center; }
+            .lecture-btn { width: 100%; margin-bottom: 8px; }
+            .progress-container { flex-direction: column; text-align: center; }
+            .progress-bar { width: 100%; margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1 class="quiz-title">Electronics and Circuits Quiz</h1>
+            <p class="quiz-subtitle">Made by Ahmed Khalid</p>
+        </div>
+        <div class="lecture-nav" id="lectureNav"></div>
+        <div class="progress-container">
+            <span id="progressText">Progress: 0%</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+            </div>
+            <span id="completedCount">0/0 questions</span>
+        </div>
+        <div id="quizContent"></div>
+    </div>
+
+    <script>
+        const quizData = {
+            lectures: [
+                {
+                    id: "chapter01",
+                    title: "Chapter 1: Alternating Current & Phasors (Capacitors and Inductors)",
+                    questions: [
+                        { type: "mcq", text: "Which of the following is a passive element that dissipates energy only?", options: [{id:"a",text:"Capacitor"},{id:"b",text:"Inductor"},{id:"c",text:"Resistor"},{id:"d",text:"Transistor"}], answer: "c" },
+                        { type: "mcq", text: "Capacitors and inductors can:", options: [{id:"a",text:"Generate energy"},{id:"b",text:"Dissipate energy"},{id:"c",text:"Store energy only"},{id:"d",text:"Both generate and dissipate energy"}], answer: "c" },
+                        { type: "mcq", text: "A capacitor consists of:", options: [{id:"a",text:"Two insulators separated by a conductor"},{id:"b",text:"Two conducting plates separated by an insulator"},{id:"c",text:"A single conducting plate and an insulator"},{id:"d",text:"Two inductors separated by a dielectric"}], answer: "b" },
+                        { type: "mcq", text: "Which of the following factors does NOT affect the value of capacitance?", options: [{id:"a",text:"Area of the plates"},{id:"b",text:"Spacing between the plates"},{id:"c",text:"Material permittivity"},{id:"d",text:"Voltage applied across the plates"}], answer: "d" },
+                        { type: "mcq", text: "The formula for capacitance is \\(C=d \\epsilon A\\). What does '\\(\\epsilon\\)' represent?", options: [{id:"a",text:"Charge"},{id:"b",text:"Permittivity of the dielectric"},{id:"c",text:"Distance between plates"},{id:"d",text:"Area of the plates"}], answer: "b" },
+                        { type: "mcq", text: "The unit of capacitance, Farad (F), is equivalent to:", options: [{id:"a",text:"Volt / Coulomb"},{id:"b",text:"Coulomb / Volt"},{id:"c",text:"Ampere / Volt"},{id:"d",text:"Volt / Ampere"}], answer: "b" },
+                        { type: "mcq", text: "The current-voltage relationship for a capacitor is:", options: [{id:"a",text:"\\(i=L \\frac{dv}{dt}\\)"},{id:"b",text:"\\(v=C \\frac{di}{dt}\\)"},{id:"c",text:"\\(i=C \\frac{dv}{dt}\\)"},{id:"d",text:"\\(v=Ri\\)"}], answer: "c" },
+                        { type: "mcq", text: "To DC, a capacitor acts as:", options: [{id:"a",text:"A short circuit"},{id:"b",text:"An open circuit"},{id:"c",text:"A resistor"},{id:"d",text:"An inductor"}], answer: "b" },
+                        { type: "mcq", text: "The voltage on a capacitor:", options: [{id:"a",text:"Can change abruptly"},{id:"b",text:"Cannot change abruptly"},{id:"c",text:"Is always zero"},{id:"d",text:"Is always constant"}], answer: "b" },
+                        { type: "mcq", text: "The energy stored in a capacitor is given by:", options: [{id:"a",text:"\\(w(t)=\\frac{1}{2}Li^2(t)\\)"},{id:"b",text:"\\(w(t)=\\frac{1}{2}Cv^2(t)\\)"},{id:"c",text:"\\(w(t)=I^2R\\)"},{id:"d",text:"\\(w(t)=VIt\\)"}], answer: "b" },
+                        { type: "mcq", text: "If a 3-pF capacitor has 20V across it, the charge stored is:", options: [{id:"a",text:"60 pJ"},{id:"b",text:"60 pC"},{id:"c",text:"6.67 pC"},{id:"d",text:"600 pJ"}], answer: "b" },
+                        { type: "mcq", text: "Under DC conditions, when calculating energy stored in capacitors in a circuit, capacitors are replaced with:", options: [{id:"a",text:"Short circuits"},{id:"b",text:"Their equivalent resistances"},{id:"c",text:"Open circuits"},{id:"d",text:"Inductors"}], answer: "c" },
+                        { type: "mcq", text: "The equivalent capacitance of N capacitors connected in series is:", options: [{id:"a",text:"\\(C_{eq}=C_1+C_2+\\dots+C_N\\)"},{id:"b",text:"\\(\\frac{1}{C_{eq}}=\\frac{1}{C_1}+\\frac{1}{C_2}+\\dots+\\frac{1}{C_N}\\)"},{id:"c",text:"\\(C_{eq}=\\frac{C_1 C_2}{C_1+C_2}\\) (for two capacitors only)"},{id:"d",text:"\\(C_{eq}\\) is the average of all capacitances"}], answer: "b" },
+                        { type: "mcq", text: "The equivalent capacitance of N capacitors connected in parallel is:", options: [{id:"a",text:"\\(C_{eq}=C_1+C_2+\\dots+C_N\\)"},{id:"b",text:"\\(\\frac{1}{C_{eq}}=\\frac{1}{C_1}+\\frac{1}{C_2}+\\dots+\\frac{1}{C_N}\\)"},{id:"c",text:"\\(C_{eq}=\\frac{C_1 C_2}{C_1+C_2}\\) (for two capacitors only)"},{id:"d",text:"\\(C_{eq}\\) is the smallest of all capacitances"}], answer: "a" },
+                        { type: "mcq", text: "An inductor is typically made of:", options: [{id:"a",text:"Two parallel conducting plates"},{id:"b",text:"A coil of conducting wire"},{id:"c",text:"A semiconductor material"},{id:"d",text:"A resistive material"}], answer: "b" },
+                        { type: "mcq", text: "The inductance L of a coil is given by \\(L=\\frac{\\mu N^2 A}{l}\\). What does 'N' represent?", options: [{id:"a",text:"Permeability of the core"},{id:"b",text:"Length of the coil"},{id:"c",text:"Number of turns"},{id:"d",text:"Cross-sectional area"}], answer: "c" },
+                        { type: "mcq", text: "The voltage-current relationship for an inductor is:", options: [{id:"a",text:"\\(v=C \\frac{di}{dt}\\)"},{id:"b",text:"\\(i=L \\frac{dv}{dt}\\)"},{id:"c",text:"\\(v=L \\frac{di}{dt}\\)"},{id:"d",text:"\\(i=Rv\\)"}], answer: "c" },
+                        { type: "mcq", text: "When the current through an inductor is constant, the voltage across the inductor is:", options: [{id:"a",text:"Maximum"},{id:"b",text:"Minimum but not zero"},{id:"c",text:"Zero (acts as a short circuit)"},{id:"d",text:"Infinite (acts as an open circuit)"}], answer: "c" },
+                        { type: "mcq", text: "The energy stored in an inductor is given by:", options: [{id:"a",text:"\\(w(t)=\\frac{1}{2}Cv^2(t)\\)"},{id:"b",text:"\\(w(t)=\\frac{1}{2}Li^2(t)\\)"},{id:"c",text:"\\(w(t)=\\frac{q^2(t)}{2C}\\)"},{id:"d",text:"\\(w(t)=VIt\\)"}], answer: "b" },
+                        { type: "mcq", text: "The equivalent inductance of N inductors connected in series is:", options: [{id:"a",text:"\\(L_{eq}=L_1+L_2+\\dots+L_N\\)"},{id:"b",text:"\\(\\frac{1}{L_{eq}}=\\frac{1}{L_1}+\\frac{1}{L_2}+\\dots+\\frac{1}{L_N}\\)"},{id:"c",text:"\\(L_{eq}=\\frac{L_1 L_2}{L_1+L_2}\\) (for two inductors only)"},{id:"d",text:"\\(L_{eq}\\) is the smallest of all inductances"}], answer: "a" },
+                        { type: "mcq", text: "The equivalent inductance of N inductors connected in parallel is:", options: [{id:"a",text:"\\(L_{eq}=L_1+L_2+\\dots+L_N\\)"},{id:"b",text:"\\(\\frac{1}{L_{eq}}=\\frac{1}{L_1}+\\frac{1}{L_2}+\\dots+\\frac{1}{L_N}\\)"},{id:"c",text:"\\(L_{eq}=\\frac{L_1 L_2}{L_1+L_2}\\) (for two inductors only)"},{id:"d",text:"\\(L_{eq}\\) is the average of all inductances"}], answer: "b" },
+                        { type: "tf", text: "A resistor can store energy.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" },
+                        { type: "tf", text: "The permeability of free space \\(\\mu_0\\) is \\(4\\pi \\times 10^{-7} H/m\\).", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "The current through an inductor can change abruptly.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" },
+                        { type: "tf", text: "Under DC conditions, an inductor acts as an open circuit.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" }, 
+                        { type: "tf", text: "For a capacitor, the circuit variable that cannot change abruptly is current.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" }, 
+                        { type: "tf", text: "The unit of inductance is Henry (H), which is equivalent to Weber/Ampere.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "In a series RLC circuit under DC conditions, the capacitor is treated as a short circuit and the inductor as an open circuit.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" } 
+                    ]
+                },
+                {
+                    id: "chapter02",
+                    title: "Chapter 2: Time Varying Signals & Sinusoidal Waveforms",
+                    questions: [
+                        { type: "mcq", text: "Which of the following is NOT a common type of time-varying signal mentioned in the text?", options: [{id:"a",text:"Sine wave"},{id:"b",text:"Square wave"},{id:"c",text:"Pulse wave"},{id:"d",text:"Triangular wave"}], answer: "c" },
+                        { type: "mcq", text: "The general wave function for a sinusoidal waveform is often given as:", options: [{id:"a",text:"\\(A(t)=A_m \\cos(\\omega t+\\phi)\\)"},{id:"b",text:"\\(A(t)=A_m \\sin(\\omega t+\\phi)\\)"},{id:"c",text:"\\(A(t)=A_m \\tan(\\omega t+\\phi)\\)"},{id:"d",text:"\\(A(t)=A_m e^{j\\omega t}\\)"}], answer: "b" },
+                        { type: "mcq", text: "The period (T) of a sine wave is:", options: [{id:"a",text:"The number of cycles completed in one second"},{id:"b",text:"The time required to complete one full cycle"},{id:"c",text:"The maximum amplitude of the wave"},{id:"d",text:"The rate of change of the wave"}], answer: "b" },
+                        { type: "mcq", text: "Frequency (f) of a sine wave is defined as:", options: [{id:"a",text:"The time taken for one cycle"},{id:"b",text:"The number of cycles completed in one second"},{id:"c",text:"The peak value of the sine wave"},{id:"d",text:"The angular displacement of the sine wave"}], answer: "b" },
+                        { type: "mcq", text: "The relationship between period (T) and frequency (f) is:", options: [{id:"a",text:"\\(T=f\\)"},{id:"b",text:"\\(T=1/f\\)"},{id:"c",text:"\\(T=2\\pi f\\)"},{id:"d",text:"\\(f=2\\pi T\\)"}], answer: "b" },
+                        { type: "mcq", text: "The instantaneous value of a sine wave refers to:", options: [{id:"a",text:"The value of the voltage or current at its peak"},{id:"b",text:"The average value of the voltage or current over one cycle"},{id:"c",text:"The value of the voltage or current at a specific point in time"},{id:"d",text:"The RMS value of the voltage or current"}], answer: "c" },
+                        { type: "mcq", text: "The peak value (\\(V_p\\)) of a sine wave is:", options: [{id:"a",text:"The value at \\(t=0\\)"},{id:"b",text:"The maximum instantaneous value measured from the zero level"},{id:"c",text:"Twice the RMS value"},{id:"d",text:"The average value over a half cycle"}], answer: "b" },
+                        { type: "mcq", text: "The peak-to-peak value (\\(V_{pp}\\)) of a sine wave is:", options: [{id:"a",text:"Equal to the peak value (\\(V_p\\))"},{id:"b",text:"Half of the peak value (\\(0.5V_p\\))"},{id:"c",text:"Twice the peak value (\\(2V_p\\))"},{id:"d",text:"Equal to the RMS value"}], answer: "c" },
+                        { type: "mcq", text: "The average value of a symmetrical sine wave taken over one complete cycle is:", options: [{id:"a",text:"\\(0.637V_p\\)"},{id:"b",text:"\\(0.707V_p\\)"},{id:"c",text:"Zero"},{id:"d",text:"\\(V_p\\)"}], answer: "c" },
+                        { type: "mcq", text: "For practical purposes, the average value of a sine wave is often defined over:", options: [{id:"a",text:"One complete cycle"},{id:"b",text:"A quarter cycle"},{id:"c",text:"A half-cycle"},{id:"d",text:"Two complete cycles"}], answer: "c" },
+                        { type: "mcq", text: "The average value of a sine wave over a half-cycle is:", options: [{id:"a",text:"\\(V_{avg}=(2/\\pi)V_p \\approx 0.637V_p\\)"},{id:"b",text:"\\(V_{avg}=(\\sqrt{2}/\\pi)V_p \\approx 0.707V_p\\)"},{id:"c",text:"\\(V_{avg}=V_p\\)"},{id:"d",text:"\\(V_{avg}=0\\)"}], answer: "a" },
+                        { type: "mcq", text: "The RMS (Root Mean Square) value of a sine wave is also known as the:", options: [{id:"a",text:"Peak value"},{id:"b",text:"Average value"},{id:"c",text:"Effective value"},{id:"d",text:"Instantaneous value"}], answer: "c" },
+                        { type: "mcq", text: "The RMS value of a sinusoidal voltage is given by:", options: [{id:"a",text:"\\(V_{rms}=V_p\\)"},{id:"b",text:"\\(V_{rms}=0.637V_p\\)"},{id:"c",text:"\\(V_{rms}=0.707V_p \\text{ (or } V_p/\\sqrt{2})\\)"},{id:"d",text:"\\(V_{rms}=2V_p\\)"}], answer: "c" },
+                        { type: "mcq", text: "The angular velocity \\(\\omega\\) of a sine wave is related to frequency f by:", options: [{id:"a",text:"\\(\\omega=f/2\\pi\\)"},{id:"b",text:"\\(\\omega=2\\pi/f\\)"},{id:"c",text:"\\(\\omega=2\\pi f\\)"},{id:"d",text:"\\(\\omega=f\\)"}], answer: "c" },
+                        { type: "mcq", text: "If a sine wave is represented as \\(v(t)=V_m\\sin(\\omega t+\\phi)\\), what does \\(\\phi\\) represent?", options: [{id:"a",text:"Amplitude"},{id:"b",text:"Frequency"},{id:"c",text:"Period"},{id:"d",text:"Phase angle"}], answer: "d" },
+                        { type: "mcq", text: "If sine wave A leads sine wave B by \\(90^\\circ\\), it means:", options: [{id:"a",text:"Wave A reaches its peak \\(90^\\circ\\) after wave B"},{id:"b",text:"Wave B reaches its peak \\(90^\\circ\\) after wave A"},{id:"c",text:"Both waves reach their peaks simultaneously"},{id:"d",text:"Wave A has a higher frequency than wave B"}], answer: "b" },
+                        { type: "mcq", text: "A phasor is a:", options: [{id:"a",text:"Stationary scalar quantity"},{id:"b",text:"Rotating vector"},{id:"c",text:"Measure of frequency"},{id:"d",text:"Type of resistor"}], answer: "b" },
+                        { type: "mcq", text: "In a phasor diagram, the length of the phasor arrow represents the:", options: [{id:"a",text:"Frequency of the quantity"},{id:"b",text:"Phase angle of the quantity"},{id:"c",text:"Magnitude (or amplitude) of the quantity"},{id:"d",text:"Period of the quantity"}], answer: "c" },
+                        { type: "mcq", text: "The power dissipated in a purely resistive AC circuit is given by \\(P=V_{rms}I_{rms}\\). This is also equal to:", options: [{id:"a",text:"\\(I_{rms}^2R\\)"},{id:"b",text:"\\(V_{rms}^2/X_C\\)"},{id:"c",text:"\\(V_{rms}I_{rms}\\cos\\phi\\)"},{id:"d",text:"0"}], answer: "a" },
+                        { type: "mcq", text: "Reactive power (\\(P_r\\)) in a capacitor is the rate at which it:", options: [{id:"a",text:"Dissipates energy as heat"},{id:"b",text:"Stores or returns energy"},{id:"c",text:"Generates energy"},{id:"d",text:"Converts AC to DC"}], answer: "b" },
+                        { type: "mcq", text: "The unit of reactive power is:", options: [{id:"a",text:"Watt (W)"},{id:"b",text:"Volt-Ampere (VA)"},{id:"c",text:"Volt-Ampere Reactive (VAR)"},{id:"d",text:"Ohm (\\(\\Omega\\))"}], answer: "c" },
+                        { type: "tf", text: "A sawtooth wave is an example of a sinusoidal waveform.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" },
+                        { type: "tf", text: "The polarity of a sine wave reverses during each cycle.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "Higher frequency means fewer cycles per second.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" },
+                        { type: "tf", text: "The 220V at a wall outlet is typically an RMS value.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "If two sine waves are in phase, the phase angle between them is \\(180^\\circ\\).", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" , notes: "Phase angle is \\(0^\\circ\\)"},
+                        { type: "tf", text: "A phasor diagram can be used to show the relative relationship of two or more sine waves of different frequencies.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Same frequency" },
+                        { type: "tf", text: "Reactive power in an inductor represents an energy loss due to conversion to heat.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" }
+                    ]
+                },
+                {
+                    id: "chapter03",
+                    title: "Chapter 3: AC Circuits Analysis",
+                    questions: [
+                        { type: "mcq", text: "A complex number \\(C=a+jb\\) is in which form?", options: [{id:"a",text:"Polar form"},{id:"b",text:"Exponential form"},{id:"c",text:"Rectangular form"},{id:"d",text:"Trigonometric form"}], answer: "c" },
+                        { type: "mcq", text: "In the complex number \\(C=a+jb\\), 'a' is the:", options: [{id:"a",text:"Imaginary part"},{id:"b",text:"Real part"},{id:"c",text:"Magnitude"},{id:"d",text:"Angle"}], answer: "b" },
+                        { type: "mcq", text: "The value of \\(j^2\\) is:", options: [{id:"a",text:"1"},{id:"b",text:"-1"},{id:"c",text:"j"},{id:"d",text:"-j"}], answer: "b" },
+                        { type: "mcq", text: "A complex number \\(C = |C| \\angle \\theta\\) is in which form?", options: [{id:"a",text:"Rectangular form"},{id:"b",text:"Polar form"},{id:"c",text:"Cartesian form"},{id:"d",text:"Standard form"}], answer: "b" },
+                        { type: "mcq", text: "To convert \\(C=a+jb\\) to polar form, the magnitude \\(|C|\\) is:", options: [{id:"a",text:"\\(a^2-b^2\\)"},{id:"b",text:"\\(a+b\\)"},{id:"c",text:"\\(\\sqrt{a^2+b^2}\\)"},{id:"d",text:"\\(a^2+b^2\\)"}], answer: "c" },
+                        { type: "mcq", text: "To convert \\(C=a+jb\\) to polar form, the angle \\(\\theta\\) is:", options: [{id:"a",text:"\\(\\tan^{-1}(a/b)\\)"},{id:"b",text:"\\(\\tan^{-1}(b/a)\\)"},{id:"c",text:"\\(\\sin^{-1}(b/|C|)\\)"},{id:"d",text:"\\(\\cos^{-1}(a/|C|)\\)"}], answer: "b" },
+                        { type: "mcq", text: "When adding complex numbers in rectangular form \\((a+jb)+(c+jd)\\), the result is:", options: [{id:"a",text:"\\((a+c)+j(b+d)\\)"},{id:"b",text:"\\((a-c)+j(b-d)\\)"},{id:"c",text:"\\((ac-bd)+j(ad+bc)\\)"},{id:"d",text:"\\((a/c)+j(b/d)\\)"}], answer: "a" },
+                        { type: "mcq", text: "When multiplying complex numbers in polar form \\((|A| \\angle \\theta_A) \\times (|B| \\angle \\theta_B)\\), the result is:", options: [{id:"a",text:"\\((|A||B|)\\angle(\\theta_A-\\theta_B)\\)"},{id:"b",text:"\\((|A|+|B|)\\angle(\\theta_A+\\theta_B)\\)"},{id:"c",text:"\\((|A||B|)\\angle(\\theta_A+\\theta_B)\\)"},{id:"d",text:"\\((|A|/|B|)\\angle(\\theta_A/\\theta_B)\\)"}], answer: "c" },
+                        { type: "mcq", text: "When dividing complex numbers in polar form \\((|A| \\angle \\theta_A) / (|B| \\angle \\theta_B)\\), the result is:", options: [{id:"a",text:"\\((|A|/|B|)\\angle(\\theta_A+\\theta_B)\\)"},{id:"b",text:"\\((|A|-|B|)\\angle(\\theta_A-\\theta_B)\\)"},{id:"c",text:"\\((|A|/|B|)\\angle(\\theta_A-\\theta_B)\\)"},{id:"d",text:"\\((|A||B|)\\angle(\\theta_A/\\theta_B)\\)"}], answer: "c" },
+                        { type: "mcq", text: "A phasor represents a sinusoid. The length of the phasor is the:", options: [{id:"a",text:"Frequency of the sinusoid"},{id:"b",text:"Phase offset of the sinusoid"},{id:"c",text:"RMS value of the sinusoid"},{id:"d",text:"Amplitude (peak value \\(V_m\\)) of the sinusoid"}], answer: "d" },
+                        { type: "mcq", text: "If a voltage is \\(v(t)=V_m\\sin(\\omega t+\\phi)\\), its phasor representation (using RMS magnitude) is:", options: [{id:"a",text:"\\(V_m\\angle\\phi\\)"},{id:"b",text:"\\((V_m/\\sqrt{2}) \\angle\\phi\\)"},{id:"c",text:"\\(V_m\\angle(\\omega t+\\phi)\\)"},{id:"d",text:"\\((V_m/\\sqrt{2}) \\angle\\omega t\\)"}], answer: "b" },
+                        { type: "mcq", text: "If \\(v_1=10\\sin(\\omega t)\\) and \\(v_2=5\\sin(\\omega t-30^\\circ)\\), then:", options: [{id:"a",text:"\\(v_1\\) lags \\(v_2\\) by \\(30^\\circ\\)"},{id:"b",text:"\\(v_2\\) leads \\(v_1\\) by \\(30^\\circ\\)"},{id:"c",text:"\\(v_1\\) leads \\(v_2\\) by \\(30^\\circ\\)"},{id:"d",text:"\\(v_1\\) and \\(v_2\\) are in phase"}], answer: "c" },
+                        { type: "mcq", text: "Impedance (Z) in an AC circuit is defined as:", options: [{id:"a",text:"V/I in the time domain"},{id:"b",text:"V/I in the phasor domain"},{id:"c",text:"I/V in the phasor domain"},{id:"d",text:"\\(P/I^2\\)"}], answer: "b" },
+                        { type: "mcq", text: "The unit of impedance is:", options: [{id:"a",text:"Henry (H)"},{id:"b",text:"Farad (F)"},{id:"c",text:"Ohm (\\(\\Omega\\))"},{id:"d",text:"Siemens (S)"}], answer: "c" },
+                        { type: "mcq", text: "For a purely resistive AC circuit, the impedance \\(Z_R\\) is:", options: [{id:"a",text:"\\(R\\angle 90^\\circ\\)"},{id:"b",text:"\\(R\\angle -90^\\circ\\)"},{id:"c",text:"\\(R\\angle 0^\\circ\\)"},{id:"d",text:"\\(j\\omega R\\)"}], answer: "c" },
+                        { type: "mcq", text: "For a purely inductive AC circuit, the impedance \\(Z_L\\) (inductive reactance \\(X_L\\)) is:", options: [{id:"a",text:"\\(\\omega L\\angle 0^\\circ\\)"},{id:"b",text:"\\(\\omega L\\angle 90^\\circ \\text{ (or } j\\omega L)\\)"},{id:"c",text:"\\(1/(\\omega L) \\angle -90^\\circ\\)"},{id:"d",text:"\\(\\omega L\\angle -90^\\circ\\)"}], answer: "b" },
+                        { type: "mcq", text: "For a purely capacitive AC circuit, the impedance \\(Z_C\\) (capacitive reactance \\(X_C\\)) is:", options: [{id:"a",text:"\\(\\omega C\\angle 0^\\circ\\)"},{id:"b",text:"\\(\\omega C\\angle 90^\\circ\\)"},{id:"c",text:"\\(1/(\\omega C) \\angle -90^\\circ \\text{ (or } 1/(j\\omega C) \\text{ or } -j/(\\omega C))\\)"},{id:"d",text:"\\(1/(\\omega C) \\angle 90^\\circ\\)"}], answer: "c" },
+                        { type: "mcq", text: "In a purely inductive circuit, the voltage:", options: [{id:"a",text:"Lags the current by \\(90^\\circ\\)"},{id:"b",text:"Leads the current by \\(90^\\circ\\)"},{id:"c",text:"Is in phase with the current"},{id:"d",text:"Leads the current by \\(45^\\circ\\)"}], answer: "b" },
+                        { type: "mcq", text: "In a purely capacitive circuit, the current:", options: [{id:"a",text:"Lags the voltage by \\(90^\\circ\\)"},{id:"b",text:"Leads the voltage by \\(90^\\circ\\)"},{id:"c",text:"Is in phase with the voltage"},{id:"d",text:"Lags the voltage by \\(45^\\circ\\)"}], answer: "b" },
+                        { type: "mcq", text: "Inductive reactance \\(X_L\\) is directly proportional to:", options: [{id:"a",text:"Capacitance"},{id:"b",text:"Resistance"},{id:"c",text:"Frequency"},{id:"d",text:"1/Frequency"}], answer: "c" },
+                        { type: "mcq", text: "Capacitive reactance \\(X_C\\) is:", options: [{id:"a",text:"Directly proportional to frequency"},{id:"b",text:"Inversely proportional to frequency"},{id:"c",text:"Independent of frequency"},{id:"d",text:"Directly proportional to resistance"}], answer: "b" },
+                        { type: "mcq", text: "For a series RLC circuit, the total impedance \\(Z_T\\) is:", options: [{id:"a",text:"\\(R+X_L+X_C\\)"},{id:"b",text:"\\(R+jX_L-jX_C\\)"},{id:"c",text:"\\(\\sqrt{R^2+(X_L-X_C)^2}\\)"},{id:"d",text:"\\(R // jX_L // (-jX_C)\\)"}], answer: "b" },
+                        { type: "tf", text: "The reciprocal of a complex number \\(C\\angle\\theta\\) is \\((1/|C|)\\angle\\theta\\).", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "It's \\((1/|C|)\\angle-\\theta\\)" },
+                        { type: "tf", text: "To express \\(A\\cos(\\omega t+\\phi)\\) as a sine function for phasor analysis, it can be written as \\(A\\sin(\\omega t+\\phi+90^\\circ)\\).", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "Ohm's law for AC circuits is \\(V=IZ\\), where V, I, and Z are all phasor quantities.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "At DC (\\(f=0 Hz\\)), an inductor looks like an open circuit.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "short circuit" },
+                        { type: "tf", text: "At DC (\\(f=0 Hz\\)), a capacitor looks like a short circuit.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "open circuit" },
+                        { type: "tf", text: "If the total impedance of an AC circuit has only a real component, the circuit is said to be purely capacitive.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "purely resistive" },
+                        { type: "tf", text: "In a series AC circuit, the current is the same through each element.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" }
+                    ]
+                },
+                {
+                    id: "chapter04",
+                    title: "Chapter 4: AC Circuits II - Resonance & Power",
+                    questions: [
+                        { type: "mcq", text: "AC Apparent Power (S) is a complex quantity made up of:", options: [{id:"a",text:"Real power (P) and imaginary reactive power (Q)"},{id:"b",text:"Only real power (P)"},{id:"c",text:"Only reactive power (Q)"},{id:"d",text:"Resistance (R) and reactance (X)"}], answer: "a" },
+                        { type: "mcq", text: "The unit of Apparent Power (S) is:", options: [{id:"a",text:"Watts (W)"},{id:"b",text:"Volt-Amperes Reactive (VAR)"},{id:"c",text:"Volt-Amperes (VA)"},{id:"d",text:"Ohms (\\(\\Omega\\))"}], answer: "c" },
+                        { type: "mcq", text: "Active Power (P), also known as real power, is dissipated in the:", options: [{id:"a",text:"Reactance of the load"},{id:"b",text:"Inductance of the load"},{id:"c",text:"Capacitance of the load"},{id:"d",text:"Resistance of the load"}], answer: "d" },
+                        { type: "mcq", text: "The unit of Active Power (P) is:", options: [{id:"a",text:"Watts (W)"},{id:"b",text:"Volt-Amperes Reactive (VAR)"},{id:"c",text:"Volt-Amperes (VA)"},{id:"d",text:"Joules (J)"}], answer: "a" },
+                        { type: "mcq", text: "Reactive Power (Q) is exchanged between:", options: [{id:"a",text:"Resistors only"},{id:"b",text:"The source and the resistive load"},{id:"c",text:"Reactive components (inductors and capacitors)"},{id:"d",text:"The source and the earth ground"}], answer: "c" },
+                        { type: "mcq", text: "The power triangle graphically shows the relationship between:", options: [{id:"a",text:"Voltage, Current, and Resistance"},{id:"b",text:"Real power (P), Reactive power (Q), and Apparent power (S)"},{id:"c",text:"Inductive reactance, Capacitive reactance, and Resistance"},{id:"d",text:"Frequency, Period, and Amplitude"}], answer: "b" },
+                        { type: "mcq", text: "In the power triangle, if \\(\\theta\\) is the angle between S and P, then \\(P=S \\times \\dots\\)", options: [{id:"a",text:"\\(\\sin\\theta\\)"},{id:"b",text:"\\(\\cos\\theta\\)"},{id:"c",text:"\\(\\tan\\theta\\)"},{id:"d",text:"\\(1/\\cos\\theta\\)"}], answer: "b" },
+                        { type: "mcq", text: "In the power triangle, if \\(\\theta\\) is the angle between S and P, then \\(Q=S \\times \\dots\\)", options: [{id:"a",text:"\\(\\sin\\theta\\)"},{id:"b",text:"\\(\\cos\\theta\\)"},{id:"c",text:"\\(\\tan\\theta\\)"},{id:"d",text:"\\(1/\\sin\\theta\\)"}], answer: "a" },
+                        { type: "mcq", text: "Power factor (Fp) is defined as the ratio of:", options: [{id:"a",text:"Reactive power to Apparent power (Q/S)"},{id:"b",text:"Real power to Apparent power (P/S)"},{id:"c",text:"Apparent power to Real power (S/P)"},{id:"d",text:"Real power to Reactive power (P/Q)"}], answer: "b" },
+                        { type: "mcq", text: "Power factor is also equal to:", options: [{id:"a",text:"\\(\\sin\\theta\\)"},{id:"b",text:"\\(\\cos\\theta\\) (where \\(\\theta\\) is the phase angle between voltage and current)"},{id:"c",text:"\\(\\tan\\theta\\)"},{id:"d",text:"1"}], answer: "b" },
+                        { type: "mcq", text: "For a purely resistive load, the power factor is:", options: [{id:"a",text:"0"},{id:"b",text:"1 (Unity)"},{id:"c",text:"0.5 lagging"},{id:"d",text:"0.5 leading"}], answer: "b" },
+                        { type: "mcq", text: "A lagging power factor indicates that the load is predominantly:", options: [{id:"a",text:"Resistive"},{id:"b",text:"Capacitive"},{id:"c",text:"Inductive"},{id:"d",text:"Non-linear"}], answer: "c" },
+                        { type: "mcq", text: "A leading power factor indicates that the load is predominantly:", options: [{id:"a",text:"Resistive"},{id:"b",text:"Capacitive"},{id:"c",text:"Inductive"},{id:"d",text:"Open circuit"}], answer: "b" },
+                        { type: "mcq", text: "Power factor correction is typically done by adding:", options: [{id:"a",text:"Inductors in series"},{id:"b",text:"Capacitors in parallel"},{id:"c",text:"Resistors in series"},{id:"d",text:"Capacitors in series"}], answer: "b" },
+                        { type: "mcq", text: "The primary goal of power factor correction is to make the overall power factor closer to:", options: [{id:"a",text:"0"},{id:"b",text:"0.5"},{id:"c",text:"1 (unity)"},{id:"d",text:"-1"}], answer: "c" },
+                        { type: "mcq", text: "Series resonance occurs in an RLC circuit when:", options: [{id:"a",text:"\\(X_L=R\\)"},{id:"b",text:"\\(X_C=R\\)"},{id:"c",text:"\\(X_L=X_C\\)"},{id:"d",text:"\\(R=0\\)"}], answer: "c" },
+                        { type: "mcq", text: "At series resonance, the impedance of the RLC circuit is:", options: [{id:"a",text:"Maximum and equal to \\(X_L\\)"},{id:"b",text:"Minimum and equal to R"},{id:"c",text:"Maximum and equal to \\(X_C\\)"},{id:"d",text:"Zero"}], answer: "b" },
+                        { type: "mcq", text: "The resonant frequency (\\(f_r\\)) of a series RLC circuit is given by:", options: [{id:"a",text:"\\(2\\pi \\sqrt{LC}\\)"},{id:"b",text:"\\(1/(2\\pi\\sqrt{LC})\\)"},{id:"c",text:"\\(LC/(2\\pi)\\)"},{id:"d",text:"\\(\\sqrt{LC}/(2\\pi)\\)"}], answer: "b" },
+                        { type: "mcq", text: "The bandwidth (BW) of a resonant circuit is the range of frequencies between the:", options: [{id:"a",text:"Peak frequency and zero frequency"},{id:"b",text:"Two frequencies where current is maximum"},{id:"c",text:"Half-power frequencies (0.707 of peak current/voltage)"},{id:"d",text:"Frequencies where reactance is zero"}], answer: "c" },
+                        { type: "mcq", text: "The Quality Factor (Q) of a series resonant circuit can be defined as:", options: [{id:"a",text:"\\(R/X_L\\) at resonance"},{id:"b",text:"\\(X_L/R\\) at resonance"},{id:"c",text:"\\(f_r \\times BW\\)"},{id:"d",text:"\\(R/Z_T\\)"}], answer: "b" },
+                        { type: "mcq", text: "If Q is the quality factor and \\(f_r\\) is the resonant frequency, the bandwidth (BW) is:", options: [{id:"a",text:"\\(Q/f_r\\)"},{id:"b",text:"\\(f_r/Q\\)"},{id:"c",text:"\\(Q \\times f_r\\)"},{id:"d",text:"\\(1/(Qf_r)\\)"}], answer: "b" },
+                        { type: "tf", text: "The total real power in an AC circuit is the algebraic sum of the real powers of individual elements.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "A power factor of 0 indicates a purely resistive load.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Power factor of 1 indicates purely resistive" },
+                        { type: "tf", text: "Improving power factor can reduce the current drawn from the source for the same amount of real power.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "Most large electrical equipment is rated using real power (W) instead of apparent power (VA).", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Rated in VA" },
+                        { type: "tf", text: "Adding a capacitor in parallel with an inductive load can improve the power factor.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "At series resonance, the current in the RLC circuit is at its minimum.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Current is maximum because impedance is minimum" },
+                        { type: "tf", text: "A higher Q factor in a resonant circuit results in a wider bandwidth.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Narrower bandwidth" }
+                    ]
+                },
+                {
+                    id: "chapter05",
+                    title: "Chapter 5: Transistors",
+                    questions: [
+                        { type: "mcq", text: "BJT stands for:", options: [{id:"a",text:"Binary Junction Transformer"},{id:"b",text:"Bipolar Junction Transistor"},{id:"c",text:"Bidirectional Junction Thyristor"},{id:"d",text:"Base Junction Terminal"}], answer: "b" },
+                        { type: "mcq", text: "A BJT is a:", options: [{id:"a",text:"Two-layer semiconductor device"},{id:"b",text:"Three-layer semiconductor device"},{id:"c",text:"Four-layer semiconductor device"},{id:"d",text:"Single-layer semiconductor device"}], answer: "b" },
+                        { type: "mcq", text: "The two main types of BJTs are:", options: [{id:"a",text:"NPN and JFET"},{id:"b",text:"PNP and MOSFET"},{id:"c",text:"NPN and PNP"},{id:"d",text:"FET and CMOS"}], answer: "c" },
+                        { type: "mcq", text: "In a BJT, which layer is heavily doped?", options: [{id:"a",text:"Base"},{id:"b",text:"Collector"},{id:"c",text:"Emitter"},{id:"d",text:"All are equally doped"}], answer: "c" },
+                        { type: "mcq", text: "The base layer in a BJT is typically:", options: [{id:"a",text:"Heavily doped and wide"},{id:"b",text:"Lightly doped and wide"},{id:"c",text:"Heavily doped and thin"},{id:"d",text:"Lightly doped and thin"}], answer: "d" },
+                        { type: "mcq", text: "For a BJT to operate as an amplifier, the emitter-base junction is usually ______ biased, and the base-collector junction is ______ biased.", options: [{id:"a",text:"Forward, Forward"},{id:"b",text:"Reverse, Reverse"},{id:"c",text:"Forward, Reverse"},{id:"d",text:"Reverse, Forward"}], answer: "c" },
+                        { type: "mcq", text: "The relationship between emitter current (\\(I_E\\)), base current (\\(I_B\\)), and collector current (\\(I_C\\)) in a BJT is:", options: [{id:"a",text:"\\(I_B=I_E+I_C\\)"},{id:"b",text:"\\(I_C=I_E+I_B\\)"},{id:"c",text:"\\(I_E=I_C+I_B\\)"},{id:"d",text:"\\(I_E=I_C-I_B\\)"}], answer: "c" },
+                        { type: "mcq", text: "The common-base current gain, \\(\\alpha\\) (alpha), is defined as:", options: [{id:"a",text:"\\(I_B/I_E\\)"},{id:"b",text:"\\(I_C/I_B\\)"},{id:"c",text:"\\(I_C/I_E\\)"},{id:"d",text:"\\(I_E/I_C\\)"}], answer: "c" },
+                        { type: "mcq", text: "The typical range for \\(\\alpha\\) in a BJT is:", options: [{id:"a",text:"Less than 0.5"},{id:"b",text:"Between 0.5 and 0.9"},{id:"c",text:"Between 0.95 and 0.998"},{id:"d",text:"Greater than 1"}], answer: "c" },
+                        { type: "mcq", text: "The common-emitter current gain, \\(\\beta\\) (beta), is defined as:", options: [{id:"a",text:"\\(I_C/I_E\\)"},{id:"b",text:"\\(I_E/I_B\\)"},{id:"c",text:"\\(I_C/I_B\\)"},{id:"d",text:"\\(I_B/I_C\\)"}], answer: "c" },
+                        { type: "mcq", text: "The relationship between \\(\\alpha\\) and \\(\\beta\\) is:", options: [{id:"a",text:"\\(\\beta=\\alpha/(1+\\alpha)\\)"},{id:"b",text:"\\(\\beta=\\alpha/(1-\\alpha)\\)"},{id:"c",text:"\\(\\alpha=\\beta/(1-\\beta)\\)"},{id:"d",text:"\\(\\alpha=(1+\\beta)/\\beta\\)"}], answer: "b" },
+                        { type: "mcq", text: "In the active region of a common-base BJT configuration, the emitter-base junction is ______ and the collector-base junction is ______.", options: [{id:"a",text:"Forward biased, Forward biased"},{id:"b",text:"Forward biased, Reverse biased"},{id:"c",text:"Reverse biased, Forward biased"},{id:"d",text:"Reverse biased, Reverse biased"}], answer: "b" },
+                        { type: "mcq", text: "The cutoff region in a BJT is where:", options: [{id:"a",text:"Collector current is maximum"},{id:"b",text:"Collector current is approximately zero"},{id:"c",text:"Emitter current is maximum"},{id:"d",text:"Base current is equal to collector current"}], answer: "b" },
+                        { type: "mcq", text: "The saturation region in a BJT is when:", options: [{id:"a",text:"Both junctions are reverse biased"},{id:"b",text:"The emitter-base is reverse biased and collector-base is forward biased"},{id:"c",text:"Both junctions are forward biased"},{id:"d",text:"Collector current is zero"}], answer: "c" },
+                        { type: "mcq", text: "A BJT operating in the saturation region acts like a(n):", options: [{id:"a",text:"Open switch"},{id:"b",text:"Closed switch (ON)"},{id:"c",text:"Amplifier"},{id:"d",text:"Attenuator"}], answer: "b" },
+                        { type: "mcq", text: "A BJT operating in the cutoff region acts like a(n):", options: [{id:"a",text:"Open switch (OFF)"},{id:"b",text:"Closed switch"},{id:"c",text:"Amplifier"},{id:"d",text:"Voltage source"}], answer: "a" },
+                        { type: "mcq", text: "FET stands for:", options: [{id:"a",text:"Forward Emitter Transistor"},{id:"b",text:"Field Effect Transistor"},{id:"c",text:"Fast Electron Thyristor"},{id:"d",text:"Frequency Emitter Triode"}], answer: "b" },
+                        { type: "mcq", text: "Unlike a BJT which is a current-controlled device, a JFET is a:", options: [{id:"a",text:"Current-controlled device"},{id:"b",text:"Voltage-controlled device"},{id:"c",text:"Resistance-controlled device"},{id:"d",text:"Power-controlled device"}], answer: "b" },
+                        { type: "mcq", text: "The main types of FETs are:", options: [{id:"a",text:"NPN and PNP"},{id:"b",text:"JFET and MOSFET"},{id:"c",text:"BJT and UJT"},{id:"d",text:"Diode and Triode"}], answer: "b" },
+                        { type: "mcq", text: "In an N-Channel JFET, the current flowing through the channel is in the form of:", options: [{id:"a",text:"Holes"},{id:"b",text:"Electrons"},{id:"c",text:"Both electrons and holes"},{id:"d",text:"Ions"}], answer: "b" },
+                        { type: "mcq", text: "The pinch-off voltage (\\(V_P\\)) in a JFET is the drain-source voltage at which:", options: [{id:"a",text:"The drain current becomes zero"},{id:"b",text:"The drain current becomes constant (saturates) for a given \\(V_{GS}\\)"},{id:"c",text:"The gate-source junction breaks down"},{id:"d",text:"The JFET turns off completely"}], answer: "b" },
+                        { type: "mcq", text: "MOSFET stands for:", options: [{id:"a",text:"Metal Oxide Semiconductor Field Effect Transistor"},{id:"b",text:"Majority Operated Silicon Field Effect Thyristor"},{id:"c",text:"Metal Oxide Silicon Field Emitter Triode"},{id:"d",text:"Multi-Oxide Semiconductor Frequency Emitter Transistor"}], answer: "a" },
+                        { type: "tf", text: "The term \"bipolar\" in BJT reflects that only electrons participate in the injection process.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Both holes and electrons" },
+                        { type: "tf", text: "In a PNP transistor, the majority carriers in the emitter are holes.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "The leakage current \\(I_{CO}\\) is the collector current when the base terminal is open.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "\\(I_{CEO}\\) is with base open, \\(I_{CBO}\\) is with emitter open" },
+                        { type: "tf", text: "The common-collector configuration is also known as an emitter follower.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "JFETs typically have a lower input impedance compared to BJTs.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Higher input impedance" },
+                        { type: "tf", text: "In a JFET, the gate terminal is typically forward-biased for normal operation.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Reverse-biased" },
+                        { type: "tf", text: "MOSFETs can operate in both depletion mode and enhancement mode.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" }
+                    ]
+                },
+                {
+                    id: "chapter06",
+                    title: "Chapter 6: Basic Diode Behavior",
+                    questions: [
+                        { type: "mcq", text: "A semiconductor material has a conductivity level:", options: [{id:"a",text:"Higher than a conductor"},{id:"b",text:"Lower than an insulator"},{id:"c",text:"Between that of a conductor and an insulator"},{id:"d",text:"Equal to that of a superconductor"}], answer: "c" },
+                        { type: "mcq", text: "Covalent bonding involves atoms:", options: [{id:"a",text:"Transferring electrons completely"},{id:"b",text:"Sharing valence electrons"},{id:"c",text:"Losing all valence electrons"},{id:"d",text:"Gaining extra protons"}], answer: "b" },
+                        { type: "mcq", text: "When an electron in an intrinsic semiconductor breaks its covalent bond and jumps to the conduction band, it leaves behind a:", options: [{id:"a",text:"Proton"},{id:"b",text:"Neutron"},{id:"c",text:"Hole"},{id:"d",text:"Photon"}], answer: "c" },
+                        { type: "mcq", text: "Doping is the process of:", options: [{id:"a",text:"Purifying a semiconductor material"},{id:"b",text:"Adding impurities to an intrinsic semiconductor"},{id:"c",text:"Cooling a semiconductor to very low temperatures"},{id:"d",text:"Heating a semiconductor to very high temperatures"}], answer: "b" },
+                        { type: "mcq", text: "N-type semiconductor material is created by doping with:", options: [{id:"a",text:"Trivalent impurity atoms (acceptor atoms)"},{id:"b",text:"Pentavalent impurity atoms (donor atoms)"},{id:"c",text:"Bivalent impurity atoms"},{id:"d",text:"Intrinsic atoms"}], answer: "b" },
+                        { type: "mcq", text: "In an N-type semiconductor, the majority charge carriers are:", options: [{id:"a",text:"Holes"},{id:"b",text:"Electrons"},{id:"c",text:"Protons"},{id:"d",text:"Neutrons"}], answer: "b" },
+                        { type: "mcq", text: "P-type semiconductor material is created by doping with:", options: [{id:"a",text:"Trivalent impurity atoms (acceptor atoms)"},{id:"b",text:"Pentavalent impurity atoms (donor atoms)"},{id:"c",text:"Quadrivalent impurity atoms"},{id:"d",text:"Inert gas atoms"}], answer: "a" },
+                        { type: "mcq", text: "In a P-type semiconductor, the majority charge carriers are:", options: [{id:"a",text:"Holes"},{id:"b",text:"Electrons"},{id:"c",text:"Negative ions"},{id:"d",text:"Positive ions"}], answer: "a" },
+                        { type: "mcq", text: "A P-N junction is formed by joining:", options: [{id:"a",text:"Two N-type materials"},{id:"b",text:"Two P-type materials"},{id:"c",text:"A P-type material and an N-type material"},{id:"d",text:"A conductor and an insulator"}], answer: "c" },
+                        { type: "mcq", text: "The depletion region in a P-N junction is formed due to:", options: [{id:"a",text:"The flow of majority carriers across the junction"},{id:"b",text:"The combination of electrons and holes near the junction"},{id:"c",text:"The application of an external voltage"},{id:"d",text:"The high temperature of the junction"}], answer: "b" },
+                        { type: "mcq", text: "Forward bias of a P-N junction diode is achieved by applying:", options: [{id:"a",text:"Positive potential to N-type and negative to P-type"},{id:"b",text:"Positive potential to P-type and negative to N-type"},{id:"c",text:"Negative potential to both P-type and N-type"},{id:"d",text:"Positive potential to both P-type and N-type"}], answer: "b" },
+                        { type: "mcq", text: "The typical barrier potential for a silicon diode is approximately:", options: [{id:"a",text:"0.3 V"},{id:"b",text:"0.7 V"},{id:"c",text:"1.1 V"},{id:"d",text:"0 V"}], answer: "b" },
+                        { type: "mcq", text: "When a diode is forward biased and conducting, its depletion region:", options: [{id:"a",text:"Widens"},{id:"b",text:"Narrows"},{id:"c",text:"Remains unchanged"},{id:"d",text:"Disappears completely"}], answer: "b" },
+                        { type: "mcq", text: "Reverse bias of a P-N junction diode is achieved by applying:", options: [{id:"a",text:"Positive potential to N-type and negative to P-type"},{id:"b",text:"Positive potential to P-type and negative to N-type"},{id:"c",text:"The same potential as forward bias"},{id:"d",text:"Zero potential"}], answer: "a" },
+                        { type: "mcq", text: "When a diode is reverse biased, the current that flows is primarily due to:", options: [{id:"a",text:"Majority carriers"},{id:"b",text:"Minority carriers (leakage current)"},{id:"c",text:"Avalanche breakdown"},{id:"d",text:"Zener breakdown"}], answer: "b" },
+                        { type: "mcq", text: "The Peak Inverse Voltage (PIV) rating of a diode is:", options: [{id:"a",text:"The maximum forward voltage it can handle"},{id:"b",text:"The maximum reverse voltage it can handle before breakdown"},{id:"c",text:"The voltage at which it starts conducting in forward bias"},{id:"d",text:"The forward current rating"}], answer: "b" },
+                        { type: "mcq", text: "A half-wave rectifier uses:", options: [{id:"a",text:"One diode"},{id:"b",text:"Two diodes"},{id:"c",text:"Four diodes (bridge configuration)"},{id:"d",text:"A Zener diode"}], answer: "a" },
+                        { type: "mcq", text: "In a half-wave rectifier, the output frequency is ______ the input frequency.", options: [{id:"a",text:"Half"},{id:"b",text:"The same as"},{id:"c",text:"Double"},{id:"d",text:"Four times"}], answer: "b" },
+                        { type: "mcq", text: "A full-wave bridge rectifier uses:", options: [{id:"a",text:"One diode"},{id:"b",text:"Two diodes"},{id:"c",text:"Four diodes"},{id:"d",text:"A center-tapped transformer and one diode"}], answer: "c" },
+                        { type: "mcq", text: "A diode clipper circuit is used to:", options: [{id:"a",text:"Amplify a signal"},{id:"b",text:"Clip off portions of a signal voltage above or below certain levels"},{id:"c",text:"Shift the DC level of a signal"},{id:"d",text:"Convert AC to DC"}], answer: "b" },
+                        { type: "mcq", text: "A diode clamper circuit is used to:", options: [{id:"a",text:"Amplify a signal"},{id:"b",text:"Clip off portions of a signal"},{id:"c",text:"Shift a waveform to a different DC level without changing its shape"},{id:"d",text:"Rectify an AC signal"}], answer: "c" },
+                        { type: "tf", text: "Germanium is a more common semiconductor material than silicon in modern diodes.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" },
+                        { type: "tf", text: "Recombination is when a conduction electron falls back into a hole.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "Pentavalent impurities are also known as acceptor atoms.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Donor atoms" },
+                        { type: "tf", text: "The barrier potential of a P-N junction can be easily measured with a standard voltmeter.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False" },
+                        { type: "tf", text: "In the breakdown region, a small increase in reverse voltage causes a large increase in reverse current.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "The average DC voltage output of a full-wave rectifier is higher than that of a half-wave rectifier for the same AC input.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "A power supply filter, like a capacitor, is used to increase the ripple voltage.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Reduce ripple voltage" }
+                    ]
+                },
+                 {
+                    id: "chapter07",
+                    title: "Chapter 7: Operational Amplifiers (Op-Amps)",
+                    questions: [
+                        { type: "mcq", text: "An operational amplifier (op-amp) is a very high gain:", options: [{id:"a",text:"Current amplifier"},{id:"b",text:"Differential amplifier"},{id:"c",text:"Power amplifier"},{id:"d",text:"RF amplifier"}], answer: "b" },
+                        { type: "mcq", text: "An ideal op-amp has:", options: [{id:"a",text:"Low input impedance and high output impedance"},{id:"b",text:"Low input impedance and low output impedance"},{id:"c",text:"High input impedance and high output impedance"},{id:"d",text:"High input impedance and low output impedance"}], answer: "d" },
+                        { type: "mcq", text: "If an input signal is applied to the non-inverting (+) input of an op-amp with the inverting (-) input grounded, the output will be:", options: [{id:"a",text:"Inverted (opposite phase)"},{id:"b",text:"Non-inverted (same phase)"},{id:"c",text:"Zero"},{id:"d",text:"A square wave"}], answer: "b" },
+                        { type: "mcq", text: "If an input signal is applied to the inverting (-) input of an op-amp with the non-inverting (+) input grounded, the output will be:", options: [{id:"a",text:"Inverted (opposite phase)"},{id:"b",text:"Non-inverted (same phase)"},{id:"c",text:"Double the input amplitude"},{id:"d",text:"A DC level"}], answer: "a" },
+                        { type: "mcq", text: "In an ideal op-amp, the current flowing into the input terminals is assumed to be:", options: [{id:"a",text:"Very large"},{id:"b",text:"Equal to the output current"},{id:"c",text:"Zero"},{id:"d",text:"Dependent on the supply voltage"}], answer: "c" },
+                        { type: "mcq", text: "The voltage difference between the inverting (-) and non-inverting (+) input terminals of an ideal op-amp in a closed-loop configuration is assumed to be:", options: [{id:"a",text:"Equal to the supply voltage"},{id:"b",text:"Very large"},{id:"c",text:"Zero (virtual ground/short concept)"},{id:"d",text:"Equal to the output voltage"}], answer: "c" },
+                        { type: "mcq", text: "In an inverting amplifier configuration, the voltage gain (\\(A_v=V_o/V_i\\)) is given by:", options: [{id:"a",text:"\\(-R_f/R_1\\)"},{id:"b",text:"\\(1+(R_f/R_1)\\)"},{id:"c",text:"\\(-R_1/R_f\\)"},{id:"d",text:"\\(R_f/R_1\\)"}], answer: "a" },
+                        { type: "mcq", text: "In a non-inverting amplifier configuration, the voltage gain (\\(A_v=V_o/V_i\\)) is given by:", options: [{id:"a",text:"\\(-R_f/R_1\\)"},{id:"b",text:"\\(1+(R_f/R_1)\\)"},{id:"c",text:"\\(R_1/R_f\\)"},{id:"d",text:"\\(R_f/R_1\\)"}], answer: "b" },
+                        { type: "mcq", text: "A voltage follower (unity follower) op-amp circuit has a voltage gain of:", options: [{id:"a",text:"0"},{id:"b",text:"1"},{id:"c",text:"-1"},{id:"d",text:"Very high (open-loop gain)"}], answer: "b" },
+                        { type: "mcq", text: "The primary purpose of a voltage follower is to act as a:", options: [{id:"a",text:"High-gain amplifier"},{id:"b",text:"Filter"},{id:"c",text:"Buffer (isolate input from load, provide impedance matching)"},{id:"d",text:"Oscillator"}], answer: "c" },
+                        { type: "mcq", text: "In a summing amplifier with multiple inputs (\\(V_1,V_2,V_3\\)) and corresponding input resistors (\\(R_1,R_2,R_3\\)) and a feedback resistor \\(R_f\\), the output voltage \\(V_o\\) is:", options: [{id:"a",text:"\\(V_o=(V_1+V_2+V_3)\\times(R_f/R_1)\\)"},{id:"b",text:"\\(V_o=-R_f(V_1/R_1+V_2/R_2+V_3/R_3)\\)"},{id:"c",text:"\\(V_o=(1+R_f/R_1)(V_1+V_2+V_3)\\)"},{id:"d",text:"\\(V_o=V_1+V_2+V_3\\)"}], answer: "b" },
+                        { type: "mcq", text: "If the feedback component in an op-amp circuit is a capacitor and the input component is a resistor, the circuit acts as a(n):", options: [{id:"a",text:"Differentiator"},{id:"b",text:"Integrator"},{id:"c",text:"Logarithmic amplifier"},{id:"d",text:"Comparator"}], answer: "b" },
+                        { type: "mcq", text: "For an integrator circuit with input voltage \\(V_1\\), input resistor R, and feedback capacitor C, the output voltage \\(V_o(t)\\) is proportional to:", options: [{id:"a",text:"\\(-(1/RC)\\int V_1(t)dt\\)"},{id:"b",text:"\\(-RC \\frac{dV_1(t)}{dt}\\)"},{id:"c",text:"\\(-(R/C)V_1(t)\\)"},{id:"d",text:"\\(-(C/R)V_1(t)\\)"}], answer: "a" },
+                        { type: "mcq", text: "If a constant DC voltage is applied to an ideal integrator, the output will be:", options: [{id:"a",text:"A constant DC voltage"},{id:"b",text:"Zero"},{id:"c",text:"A ramp voltage (linearly increasing or decreasing)"},{id:"d",text:"A sinusoidal voltage"}], answer: "c" },
+                        { type: "mcq", text: "If the input component in an op-amp circuit is a capacitor and the feedback component is a resistor, the circuit acts as a(n):", options: [{id:"a",text:"Differentiator"},{id:"b",text:"Integrator"},{id:"c",text:"Summing amplifier"},{id:"d",text:"Voltage follower"}], answer: "a" },
+                        { type: "mcq", text: "For a differentiator circuit with input voltage \\(V_1\\), input capacitor C, and feedback resistor R, the output voltage \\(V_o(t)\\) is proportional to:", options: [{id:"a",text:"\\(-(1/RC)\\int V_1(t)dt\\)"},{id:"b",text:"\\(-RC \\frac{dV_1(t)}{dt}\\)"},{id:"c",text:"\\(-(R/C)V_1(t)\\)"},{id:"d",text:"\\(-(C/R)V_1(t)\\)"}], answer: "b" },
+                        { type: "mcq", text: "\"Virtual ground\" in an op-amp circuit (like an inverting amplifier) means:", options: [{id:"a",text:"The inverting input is physically connected to ground."},{id:"b",text:"The inverting input is at approximately 0V potential but is not directly connected to ground."},{id:"c",text:"No current flows through the feedback resistor."},{id:"d",text:"The output voltage is always zero."}], answer: "b" },
+                        { type: "mcq", text: "If an op-amp is operated in \"double-ended output\" mode, it means:", options: [{id:"a",text:"There are two input signals."},{id:"b",text:"The output is taken from two terminals, neither of which is ground, and they are opposite in polarity."},{id:"c",text:"The output is twice the input."},{id:"d",text:"The op-amp has two separate output stages."}], answer: "b" },
+                        { type: "mcq", text: "A voltage-controlled voltage source (VCVS) is a conceptual block where the output voltage is:", options: [{id:"a",text:"Independent of the input voltage"},{id:"b",text:"Controlled by an input current"},{id:"c",text:"A function of an input voltage, often scaled by a gain factor"},{id:"d",text:"Always equal to the input voltage"}], answer: "c" },
+                        { type: "mcq", text: "When multiple op-amp stages are connected in series, the overall voltage gain is the:", options: [{id:"a",text:"Sum of the individual stage gains"},{id:"b",text:"Average of the individual stage gains"},{id:"c",text:"Product of the individual stage gains"},{id:"d",text:"Difference between the highest and lowest stage gains"}], answer: "c" },
+                        { type: "mcq", text: "An op-amp voltage buffer is characterized by:", options: [{id:"a",text:"Very low input impedance and high output impedance"},{id:"b",text:"High voltage gain"},{id:"c",text:"Unity voltage gain, high input impedance, low output impedance"},{id:"d",text:"Inverted output signal"}], answer: "c" },
+                        { type: "mcq", text: "The scale factor for an op-amp differentiator circuit is:", options: [{id:"a",text:"\\(-1/RC\\)"},{id:"b",text:"\\(-RC\\)"},{id:"c",text:"\\(1+R/C\\)"},{id:"d",text:"\\(-R/C\\)"}], answer: "b" },
+                        { type: "tf", text: "An op-amp typically requires both positive and negative power supply voltages.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "Open-loop gain of an op-amp is typically very low.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Very high" },
+                        { type: "tf", text: "In a non-inverting amplifier, the input signal is applied to the inverting (-) terminal.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Applied to non-inverting (+) terminal" },
+                        { type: "tf", text: "A summing amplifier can only add voltages; it cannot perform subtraction.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "Subtraction can be achieved by inverting one input before summing" },
+                        { type: "tf", text: "An ideal integrator's output for a square wave input would be a triangular wave.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "An ideal differentiator's output for a ramp input would be a constant DC level (step).", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "The concept of feedback is crucial for most practical op-amp circuit configurations.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "True" },
+                        { type: "tf", text: "A unity follower circuit inverts the phase of the input signal.", options: [{id:"True",text:"True"},{id:"False",text:"False"}], answer: "False", notes: "No phase inversion" }
+                    ]
+                }
+            ]
+        };
+
+        const state = {
+            currentLecture: quizData.lectures[0].id,
+            answers: {} 
+        };
+
+        const lectureNav = document.getElementById('lectureNav');
+        const quizContent = document.getElementById('quizContent');
+        const progressText = document.getElementById('progressText');
+        const progressFill = document.getElementById('progressFill');
+        const completedCount = document.getElementById('completedCount');
+
+        function initQuiz() {
+            createLectureNavigation();
+            renderQuizContent(); // This will also call MathJax.Hub.Queue
+            updateProgress();
+            // MathJax should be queued after content is added.
+        }
+
+        function createLectureNavigation() {
+            lectureNav.innerHTML = '';
+            quizData.lectures.forEach(lecture => {
+                const button = document.createElement('button');
+                button.classList.add('lecture-btn');
+                const shortTitleMatch = lecture.title.match(/Chapter\s*\d+/i);
+                const buttonText = shortTitleMatch ? shortTitleMatch[0] : lecture.id;
+                
+                button.dataset.lectureId = lecture.id;
+
+                const textNode = document.createTextNode(buttonText + " ");
+                button.appendChild(textNode);
+
+                const statusIndicator = document.createElement('span');
+                statusIndicator.classList.add('status-indicator');
+                button.appendChild(statusIndicator);
+
+
+                if (lecture.id === state.currentLecture) {
+                    button.classList.add('active');
+                }
+                button.addEventListener('click', () => {
+                    state.currentLecture = lecture.id;
+                    document.querySelectorAll('.lecture-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    renderQuizContent();
+                });
+                lectureNav.appendChild(button);
+            });
+            updateProgress(); 
+        }
+
+        function renderQuizContent() {
+            quizContent.innerHTML = '';
+            const currentLectureData = quizData.lectures.find(l => l.id === state.currentLecture);
+            if (!currentLectureData) return;
+
+            const chapterTitle = document.createElement('h2');
+            chapterTitle.classList.add('chapter-title');
+            chapterTitle.textContent = currentLectureData.title;
+            quizContent.appendChild(chapterTitle);
+
+            const questionsByType = currentLectureData.questions.reduce((acc, q) => {
+                acc[q.type] = acc[q.type] || [];
+                acc[q.type].push(q);
+                return acc;
+            }, {});
+
+            let questionCounter = 0;
+            for (const type in questionsByType) {
+                const typeTitle = document.createElement('h3');
+                typeTitle.classList.add('question-type-title');
+                if (type === "tf") typeTitle.textContent = "True/False Questions";
+                else if (type === "mcq") typeTitle.textContent = "Multiple Choice Questions";
+                else typeTitle.textContent = type.toUpperCase() + " Questions";
+                quizContent.appendChild(typeTitle);
+
+                questionsByType[type].forEach((question, index) => {
+                    questionCounter++;
+                    renderQuestion(question, questionCounter, type);
+                });
+            }
+             if (typeof MathJax !== "undefined" && MathJax.Hub) {
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, quizContent]);
+            }
+        }
+
+        function renderQuestion(question, questionNum, questionType) {
+            const questionId = `${state.currentLecture}_${questionType}_${questionNum}`;
+
+            const questionBlock = document.createElement('div');
+            questionBlock.classList.add('question-block');
+            questionBlock.id = `question-${questionId}`;
+
+            const questionTextP = document.createElement('p');
+            questionTextP.classList.add('question-text');
+            questionTextP.innerHTML = `${questionNum}. ${question.text}`; 
+            questionBlock.appendChild(questionTextP);
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.classList.add('options');
+
+            question.options.forEach(option => {
+                const label = document.createElement('label');
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                if (questionType !== 'tf') { // Only add name for MCQ to group them
+                    radio.name = questionId;
+                }
+                radio.value = option.id;
+                radio.dataset.questionId = questionId;
+
+                if (state.answers[questionId] === option.id) {
+                    radio.checked = true;
+                    questionBlock.style.borderColor = '#28a745';
+                    questionBlock.style.backgroundColor = '#f0fff4';
+                }
+
+                radio.addEventListener('change', (e) => {
+                    state.answers[questionId] = e.target.value;
+                    updateProgress();
+                    questionBlock.style.borderColor = '#28a745';
+                    questionBlock.style.backgroundColor = '#f0fff4';
+                });
+
+                label.appendChild(radio);
+                const optionTextSpan = document.createElement('span');
+                optionTextSpan.innerHTML = ` ${option.text}`; 
+                label.appendChild(optionTextSpan);
+                optionsDiv.appendChild(label);
+            });
+            questionBlock.appendChild(optionsDiv);
+
+            const showAnswerBtn = document.createElement('button');
+            showAnswerBtn.classList.add('show-answer-btn');
+            showAnswerBtn.textContent = 'Show Answer';
+            showAnswerBtn.onclick = () => showAnswer(showAnswerBtn, question); // Pass question for notes
+            questionBlock.appendChild(showAnswerBtn);
+
+            const answerDiv = document.createElement('div');
+            answerDiv.classList.add('answer');
+            const correctAnswerObj = question.options.find(opt => opt.id === question.answer);
+            let answerText = `Correct Answer: ${correctAnswerObj ? correctAnswerObj.text : question.answer}`;
+            if (question.notes) { // Add notes if they exist
+                answerText += `<br><small><em>Note: ${question.notes}</em></small>`;
+            }
+            answerDiv.innerHTML = answerText; 
+            questionBlock.appendChild(answerDiv);
+
+            quizContent.appendChild(questionBlock);
+        }
+        
+        function showAnswer(btn, question) { // Added question parameter
+            const answerDiv = btn.nextElementSibling;
+            if (answerDiv.style.display === 'none' || answerDiv.style.display === '') {
+                answerDiv.style.display = 'block';
+                btn.textContent = 'Hide Answer';
+                 if (typeof MathJax !== "undefined" && MathJax.Hub) { // Re-typeset if answer contains MathJax
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, answerDiv]);
+                }
+            } else {
+                answerDiv.style.display = 'none';
+                btn.textContent = 'Show Answer';
+            }
+        }
+
+        function updateProgress() {
+            let totalQuestions = 0;
+            quizData.lectures.forEach(lecture => totalQuestions += lecture.questions.length);
+            
+            const answeredQuestions = Object.keys(state.answers).length;
+            const progressPercent = totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
+
+            progressFill.style.width = progressPercent + '%';
+            progressText.textContent = `Progress: ${progressPercent}%`;
+            completedCount.textContent = `${answeredQuestions}/${totalQuestions} questions`;
+            
+            document.querySelectorAll('.lecture-btn').forEach(btn => {
+                const lectureId = btn.dataset.lectureId;
+                const lectureData = quizData.lectures.find(l => l.id === lectureId);
+                if (!lectureData) return;
+
+                let lectureQuestionsCount = lectureData.questions.length;
+                let answeredInThisLecture = 0;
+                
+                let qCounterForLecture = 0;
+                const questionsByType = lectureData.questions.reduce((acc, q) => {
+                    acc[q.type] = acc[q.type] || [];
+                    acc[q.type].push(q);
+                    return acc;
+                }, {});
+
+                for (const type in questionsByType) {
+                    questionsByType[type].forEach((question) => {
+                        qCounterForLecture++;
+                        const questionIdToCheck = `${lectureId}_${type}_${qCounterForLecture}`;
+                        if (state.answers.hasOwnProperty(questionIdToCheck)) {
+                            answeredInThisLecture++;
+                        }
+                    });
+                }
+                
+                const statusIndicator = btn.querySelector('.status-indicator');
+                if (statusIndicator) {
+                    if (lectureQuestionsCount > 0 && answeredInThisLecture === lectureQuestionsCount) {
+                        statusIndicator.classList.add('completed');
+                    } else {
+                        statusIndicator.classList.remove('completed');
+                    }
+                }
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>
